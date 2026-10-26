@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -116,48 +116,113 @@ td.num { font-variant-numeric: tabular-nums; }
 .pair { margin: 0 0 10px; }
 .pair img { width: 100%; display: block; border-radius: 4px; background: #000; }
 .pair figcaption { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* ---- neo-glass redesign (reference: warm cream/peach frosted-glass pin) ---- */
+:root {
+  --surface-0: #f5ede2;
+  --glass-bg: rgba(255,252,247,.42); --glass-border: rgba(255,255,255,.85);
+  --glass-hi: rgba(255,255,255,.75); --glass-soft: rgba(255,255,255,.32);
+  --blob1: rgba(255,178,120,.34); --blob2: rgba(255,214,178,.42);
+  --blob3: rgba(248,190,140,.30); --blob4: rgba(255,236,214,.50);
+  --accent: #ef7d2b; --accent-soft: rgba(239,125,43,.45); --reject-ink: #c05f16;
+  --warm-shadow: 0 18px 50px rgba(197,130,62,.16), 0 3px 10px rgba(197,130,62,.08);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --glass-bg: rgba(30,26,22,.52); --glass-border: rgba(255,235,214,.14);
+  --glass-hi: rgba(255,235,214,.10); --glass-soft: rgba(255,255,255,.05);
+  --blob1: rgba(255,160,90,.13); --blob2: rgba(255,190,140,.09);
+  --blob3: rgba(255,150,80,.11); --blob4: rgba(255,210,170,.07);
+  --reject-ink: #f3bd8d;
+  --warm-shadow: 0 18px 50px rgba(0,0,0,.45); } }
+:root[data-theme="dark"] {
+  --glass-bg: rgba(30,26,22,.52); --glass-border: rgba(255,235,214,.14);
+  --glass-hi: rgba(255,235,214,.10); --glass-soft: rgba(255,255,255,.05);
+  --blob1: rgba(255,160,90,.13); --blob2: rgba(255,190,140,.09);
+  --blob3: rgba(255,150,80,.11); --blob4: rgba(255,210,170,.07);
+  --reject-ink: #f3bd8d;
+  --warm-shadow: 0 18px 50px rgba(0,0,0,.45); }
+body {
+  background:
+    radial-gradient(1000px 620px at 88% -14%, var(--blob1), transparent 60%),
+    radial-gradient(880px 580px at -14% 22%, var(--blob2), transparent 62%),
+    radial-gradient(840px 680px at 58% 118%, var(--blob3), transparent 60%),
+    radial-gradient(760px 520px at 34% 48%, var(--blob4), transparent 66%),
+    var(--surface-0);
+  background-attachment: fixed;
+}
+section, .alert, .modal-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--warm-shadow), inset 0 1px 0 var(--glass-hi);
+}
+button { border-radius: 999px; border: 1px solid var(--glass-border);
+  background: var(--glass-bg); color: var(--text-primary);
+  transition: transform .12s ease, box-shadow .12s ease; }
+button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(197,130,62,.20); }
+button:disabled { opacity: .55; }
+.approve { background: linear-gradient(135deg, #ffb37a, var(--accent)); border: none; color: #fff;
+  box-shadow: 0 8px 22px rgba(239,125,43,.38), inset 0 1px 0 rgba(255,255,255,.5); }
+.reject { background: var(--glass-bg); border: 1px solid var(--accent-soft); color: var(--reject-ink); }
+#add-videos { margin-left: auto; align-self: center; font-weight: 600; }
+.cam { border-radius: 16px; background: var(--glass-soft); border-color: var(--glass-border); }
+.card { border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--glass-border); }
+.chip { background: var(--glass-soft); border-color: var(--glass-border); }
+input, select { background: var(--glass-soft); border: 1px solid var(--glass-border); border-radius: 8px; padding: 3px 7px; }
+#pc-viewer { border-radius: 16px !important; }
+#side-feed { grid-row: span 2; display: flex; flex-direction: column; }
+#side-feed ul { flex: 1; max-height: none; }
+@media (max-width: 860px) { #side-feed { grid-row: auto; } }
+/* map + 3D panels stay dark (user request 23:24: black as before) */
+.dark-panel {
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8e8d86;
+  --covered: #3a3936; --seen-line: #4a4946; --crossed-line: #55534e; --grid: #2a2925;
+  --robot-0: #3987e5; --robot-1: #e8764a; --robot-2: #1fae7c;
+  background: rgba(18,17,16,.92);
+  border-color: rgba(255,255,255,.14);
+  box-shadow: 0 18px 50px rgba(120,70,30,.18), inset 0 1px 0 rgba(255,255,255,.12);
+  color: var(--text-primary);
+}
+.dark-panel a { color: #f3bd8d; }
+.dark-panel .pc-btn { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.28); color: #f0efec; }
+.dark-panel input[type=checkbox] { accent-color: #ef7d2b; }
+
+/* approval modal: 80% of the screen */
+.modal { position: fixed; inset: 0; z-index: 50; }
+.modal[hidden] { display: none; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(15,15,18,.38);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.modal-card { position: absolute; inset: 0; margin: auto; width: 80vw; height: 80vh;
+  border-radius: 24px; padding: 18px 22px; overflow: auto; }
+.modal-head { display: flex; align-items: center; gap: 12px; position: sticky; top: 0;
+  background: inherit; padding-bottom: 8px; }
+.modal-head h2 { margin: 0; }
+.modal-x { margin-left: auto; border: none; background: transparent; font-size: 18px;
+  color: var(--text-secondary); padding: 4px 10px; }
+@media (max-width: 860px) { .modal-card { width: 94vw; height: 86vh; } }
 </style>
 </head>
 <body>
 <header>
   <h1>Swarm coverage</h1>
   <span class="sub" id="run">loading…</span>
+  <button class="approve" id="add-videos" onclick="location.href='/upload'">＋ Add videos</button>
 </header>
 <div class="alert" id="alert" role="alert">
   <b id="alert-text">Approval needed</b>
   <span class="sub">Coverage is on hold until you answer.</span>
-  <button class="approve" onclick="document.getElementById('pending').scrollIntoView({behavior: 'smooth'})">Review now</button>
+  <button class="approve" onclick="openApprovals()">Review now</button>
   <button class="reject" id="alerts-btn" onclick="enableAlerts()">Enable desktop alerts + sound</button>
 </div>
 <main>
-  <section class="wide" id="job-panel">
-    <h2>Mapping job · upload stereo footage, then Start</h2>
-    <p class="sub note">Per camera: a left video, a right video and a stereo calibration file (our calib yaml or a Kalibr
-      camchain). Timestamp files for both videos are optional but are the only way to <em>prove</em> the pair is
-      synchronised; without them the server only runs a motion check and says so. Files are sent in 64 MB pieces.
-      Start runs the actual mapping on this server and the 3D view below grows as points are computed; it is not a
-      stored replay. Replay speed 1 means footage speed; this server has only been timed at 0.25 so far. Alerts and decisions in a job are plain rules (no Nova/Bedrock calls).
-      Uploading and Start need the operator token.</p>
-    <div id="job-robots"></div>
-    <p>
-      <label>Cameras <select id="job-n"><option>1</option><option>2</option><option selected>3</option></select></label>
-      <label>Replay speed <input id="job-rate" type="number" min="0.05" max="2" step="0.05" value="0.25" style="width:5em"></label>
-      <label>Wall-clock cap (min) <input id="job-cap" type="number" min="1" max="60" step="1" value="20" style="width:4.5em"></label>
-      <label>Operator token <input id="op-token" type="password" autocomplete="off" placeholder="needed to upload / start" style="width:11em"></label>
-      <button class="approve" id="job-prepare" onclick="jobPrepare()">1 · Upload + check files</button>
-      <button class="approve" id="job-start" onclick="jobStart()" disabled>2 · Start mapping</button>
-      <button class="reject" id="job-stop" onclick="jobStop()" disabled>Stop</button>
-      <button id="job-demo" onclick="jobDemo()">Show saved demo</button>
-    </p>
-    <div class="bar" id="job-bar" hidden><div id="job-fill"></div></div>
-    <p class="sub" id="job-msg" role="status"></p>
-  </section>
   <section class="wide">
     <h2>Live camera views (rectified by the OpenCV 5 front end)</h2>
     <div class="cams" id="cams"></div>
   </section>
   <section class="wide" id="prov-note" style="display:none;background:#fff8e1;border:1px solid #e6c34a"><p class="sub note" style="margin:0"><b>Provenance of the coverage, notifications and decision log below:</b> in job f12fd4ac9d73 the live rules-only coordinator crashed at start (it launched before events.jsonl existed), so nothing here was produced live during the test. These tables were generated afterwards, on 26 Oct 2026 at about 08:03 IST, by running the same rules-only coordinator once over the recorded events. Message times shown are from that run, not from the test. The startup fix is in the code but has not yet been validated on a live job. The 3D cloud and the trajectory numbers come from the live SLAM run itself.</p></section>
-  <section>
+  <section class="dark-panel">
     <h2>Merged map</h2>
     <div class="stats" id="stats"></div>
     <svg id="map" viewBox="0 0 600 420" role="img" aria-label="Top-down merged map with camera trajectories and coverage cells"></svg>
@@ -170,25 +235,24 @@ td.num { font-variant-numeric: tabular-nums; }
       <span><span class="box" style="border:1px solid var(--seen-line)"></span>Seen by one camera</span>
     </div>
   </section>
-  <section class="wide">
+  <section id="side-feed">
+    <h2>Notifications to walkers</h2>
+    <ul id="feed"></ul>
+  </section>
+  <section class="dark-panel">
     <h2>3D Point Cloud</h2>
     <p class="sub note" id="pc-note">Stereo depth of every Swarm-SLAM keyframe, placed at its merged-map pose and re-placed after each optimization. Grows with the replay: each camera's points appear once it has reached them, with its path and current position (diamond). Colored by camera; floor at z = 0.</p>
     <div class="pc-section">
-      <button class="pc-btn" id="pc-btn" onclick="loadPointCloud()">📥 Download Point Cloud</button>
+      <button class="pc-btn" id="pc-btn" onclick="loadPointCloud()">📥 Download Point Cloud (.glb)</button>
       <button class="pc-btn" id="pc-refresh" onclick="refreshPointCloud()">🔄 Refresh View</button>
       <label class="sub" style="display:inline-flex;gap:6px;align-items:center;margin-left:8px"><input type="checkbox" id="pc-paths" onchange="pcPathsUser = this.checked; pcDrawn = ''; drawPointCloud();" checked> Show camera paths</label>
-      <span id="pc-status" class="sub"></span>
+      <span id="pc-status" class="sub"></span> <a class="sub" href="/api/pointcloud" download="pointcloud.pcd" style="margin-left:8px">original .pcd</a>
     </div>
     <div id="pc-viewer" style="width: 100%; height: 500px; margin-top: 12px; border-radius: 6px; overflow: hidden;">
       <div style="display: grid; place-items: center; height: 100%; color: var(--text-muted); font-size: 12px;">Loading 3D viewer...</div>
     </div>
   </section>
-  <section>
-    <h2>Waiting for a human</h2>
-    <div id="pending"></div>
-    <h2 style="margin-top:16px">Notifications to walkers</h2>
-    <ul id="feed"></ul>
-  </section>
+  
   <section class="wide">
     <h2>Decision log (latest first)</h2>
     <div class="table-wrap"><table>
@@ -205,6 +269,14 @@ td.num { font-variant-numeric: tabular-nums; }
     <div id="devices" class="devices"></div>
   </section>
 </main>
+<div class="modal" id="approval-modal" hidden>
+  <div class="modal-backdrop" onclick="closeApprovals()"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Approvals waiting for a human">
+    <div class="modal-head"><h2>Waiting for a human</h2>
+      <button class="modal-x" onclick="closeApprovals()" aria-label="Close">✕</button></div>
+    <div id="pending"></div>
+  </div>
+</div>
 <script>
 const CELL = 2.0;
 const WEAK_TRACK = 0.5, MIN_FEATURES = 100;  // must match coordinator/main.py
@@ -238,7 +310,7 @@ function loadPointCloud() {
   btn.disabled = true;
   status.textContent = "Loading...";
   
-  fetch("/api/pointcloud")
+  fetch("/api/pointcloud.glb")
     .then(resp => {
       if (!resp.ok) throw new Error("Point cloud not available");
       return resp.blob();
@@ -247,7 +319,7 @@ function loadPointCloud() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "pointcloud.pcd";
+      a.download = "pointcloud.glb";
       a.click();
       URL.revokeObjectURL(url);
       status.textContent = "Downloaded!";
@@ -326,7 +398,7 @@ function drawPointCloud() {
   for (let i = 0; i < pc.count; i++) {
     if (seen(i)) { x.push(pc.x[i]); y.push(pc.y[i]); z.push(pc.z[i]); color.push(pc.color[i]); }
   }
-  const css = getComputedStyle(document.documentElement);
+  const css = getComputedStyle(viewer.closest("section") || document.documentElement);
   const v = name => css.getPropertyValue(name).trim();
   const traces = [{ x, y, z, type: "scatter3d", mode: "markers", hoverinfo: "skip", showlegend: false,
                     marker: { size: 1.6, color, opacity: 0.9 } }];
@@ -478,108 +550,23 @@ function beep() {
     o.start(); o.stop(ctx.currentTime + 0.25);
   } catch (e) {}
 }
+function openApprovals() { document.getElementById("approval-modal").hidden = false; }
+function closeApprovals() { document.getElementById("approval-modal").hidden = true; }
 function announce(pending) {
   const n = pending.length;
+  if (n === 0) closeApprovals();
   document.getElementById("alert").classList.toggle("on", n > 0);
   document.getElementById("alert-text").textContent = n === 1 ? "1 approval needed" : `${n} approvals needed`;
   document.title = n ? `(${n}) Approval needed · Swarm Coverage` : "Swarm Coverage";
   for (const o of pending) {
     if (announced.has(o.overlap_id)) continue;
     announced.add(o.overlap_id);
+    openApprovals();   // a new overlap pops the approval card up over the page
     if (!alertsOn) continue;
     beep();
     if ("Notification" in window && Notification.permission === "granted")
       new Notification("Approval needed", {body: `Overlap #${o.overlap_id}: camera ${o.a} and camera ${o.b}, weak evidence (${o.cv_inliers} inliers)`});
   }
-}
-
-// ---- Input: uploads ------------------------------------------------------------------------
-const MAX_UPLOAD_MB = 95;
-const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-function sendOne(file, camera, session, onProgress, retry = true) {
-  return new Promise(resolve => {
-    const xhr = new XMLHttpRequest(), data = new FormData();
-    data.append("file", file); data.append("camera", camera); data.append("session", session);
-    xhr.open("POST", "/api/uploads");
-    xhr.setRequestHeader("X-Approval-Token", token(false));
-    xhr.upload.onprogress = e => e.lengthComputable && onProgress(e.loaded);
-    xhr.onload = () => {
-      if (xhr.status === 403 && retry) { token(true); return resolve(sendOne(file, camera, session, onProgress, false)); }
-      resolve({ok: xhr.status === 201, status: xhr.status, text: xhr.responseText});
-    };
-    xhr.onerror = () => resolve({ok: false, status: 0, text: "network error"});
-    xhr.send(data);
-  });
-}
-async function startUploads(ev) {
-  ev.preventDefault();
-  const msg = document.getElementById("upload-msg"), bar = document.getElementById("upload-progress"),
-        fill = document.getElementById("upload-fill"), btn = document.getElementById("upload-btn");
-  const picks = [0, 1, 2].map(c => ({camera: c, file: document.getElementById(`upload-${c}`).files[0]})).filter(p => p.file);
-  if (!picks.length) { msg.textContent = "Choose at least one video (one per camera, up to three)."; return false; }
-  const big = picks.find(p => p.file.size > MAX_UPLOAD_MB * 1024 * 1024);
-  if (big) { msg.textContent = `Camera ${big.camera}: ${big.file.name} is ${(big.file.size / 2**20).toFixed(0)} MB; the limit is ${MAX_UPLOAD_MB} MB per video.`; return false; }
-  const session = Array.from(crypto.getRandomValues(new Uint8Array(4)), x => x.toString(16).padStart(2, "0")).join("");
-  const total = picks.reduce((n, p) => n + p.file.size, 0);
-  let done = 0, failures = [];
-  bar.hidden = false; fill.style.width = "0"; btn.disabled = true;
-  for (const p of picks) {
-    msg.textContent = `Uploading camera ${p.camera}: ${p.file.name}…`;
-    const r = await sendOne(p.file, p.camera, session, loaded => fill.style.width = `${(100 * (done + loaded) / total).toFixed(0)}%`);
-    done += p.file.size;
-    if (!r.ok) failures.push(`camera ${p.camera} (${r.status}: ${r.text})`);
-    refreshUploads();
-  }
-  bar.hidden = true; btn.disabled = false;
-  msg.textContent = failures.length ? `Some uploads failed: ${failures.join("; ")}`
-    : `Uploaded ${picks.length} video${picks.length > 1 ? "s" : ""} as session ${session}. Analysis is queued.`;
-  if (!failures.length) document.getElementById("upload-form").reset();
-  return false;
-}
-async function deleteUpload(id, retry = true) {
-  const r = await fetch(`/api/uploads/${id}`, {method: "DELETE", headers: {"X-Approval-Token": token(false)}});
-  if (r.status === 403 && retry) { token(true); return deleteUpload(id, false); }
-  if (!r.ok) alert(await r.text());
-  refreshUploads();
-}
-function renderUpload(u) {
-  const st = {queued: "Queued", processing: `Analyzing… ${Math.round((u.progress || 0) * 100)}%`, done: "Analyzed", failed: "Failed"}[u.status] || u.status;
-  const info = u.duration_s ? `<span>${mmss(u.duration_s)}</span><span>${u.width}×${u.height}</span><span>${u.fps} fps</span>` : "";
-  let body = `<div class="meta"><span>${st}</span><span>${(u.size_bytes / 2**20).toFixed(1)} MB</span>${info}</div>`;
-  if (u.status === "done") {
-    const segs = (u.weak_segments || []).map(([a, b]) => `<i style="left:${100 * a / u.duration_s}%;width:${Math.max(0.6, 100 * (b - a) / u.duration_s)}%" title="weak ${mmss(a)}–${mmss(b)}"></i>`).join("");
-    body += `<div class="timeline" role="img" aria-label="Weak-tracking stretches over the clip">${segs}</div>
-      <div class="meta"><span>Tracking <b>${u.median_track ?? "–"}</b></span><span>Features <b>${u.median_features}</b></span>
-      <span>Blur <b>${u.median_blur}</b></span><span>Weak <b>${Math.round(100 * u.weak_share)}%</b> of the clip</span></div>
-      <div class="meta">${(u.weak_segments || []).length ? "Weak stretches: " + u.weak_segments.slice(0, 6).map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(", ") + (u.weak_segments.length > 6 ? "…" : "") : "No weak stretches of 1 s or more."}
-      · ${u.samples} frames scored in ${u.analysis_s} s</div>`;
-  }
-  if (u.status === "failed") body += `<div class="meta">${esc(u.error)}</div>`;
-  const thumb = u.status === "done" ? `<img src="/api/uploads/${u.id}/thumb" alt="">` : '<div class="thumb-none"></div>';
-  const del = ["done", "failed"].includes(u.status) ? `<button class="reject del" onclick="deleteUpload('${u.id}')">Delete</button>` : "";
-  const cam = u.camera == null ? "" : `<span class="dot" style="background:${color(u.camera)};display:inline-block;margin-right:6px"></span>Camera ${u.camera} · `;
-  return `<div class="vid">${thumb}<div><b>${cam}${esc(u.name)}</b>${body}${del}</div></div>`;
-}
-let lastUploads = "";
-async function refreshUploads() {
-  if (!document.getElementById("uploads")) return;  // quality-only section removed
-  try {
-    const list = await (await fetch("/api/uploads")).json(), key = JSON.stringify(list);
-    if (key === lastUploads) return;  // don't reload thumbnails every poll
-    lastUploads = key;
-    // Group by session (newest first), cameras in order inside each session.
-    const sessions = [];
-    for (const u of list) {
-      let g = sessions.find(x => x.id === u.session);
-      if (!g) sessions.push(g = {id: u.session, created: u.created, items: []});
-      g.items.push(u);
-    }
-    document.getElementById("uploads").innerHTML = sessions.length ? sessions.map(g => `
-      <div class="session"><div class="session-head">Session ${esc(g.id)} · ${new Date(g.created * 1000).toLocaleString()} ·
-        ${g.items.length} video${g.items.length > 1 ? "s" : ""}</div>
-        ${g.items.sort((x, y) => (x.camera ?? 9) - (y.camera ?? 9)).map(renderUpload).join("")}</div>`).join("")
-      : '<p class="empty">No uploads yet.</p>';
-  } catch (e) { console.error(e); }
 }
 
 // ---- Devices (planned) ------------------------------------------------------------------------
@@ -616,104 +603,8 @@ async function refresh() {
 }
 buildCameraTiles();
 loadDevices();
-refreshUploads();
 
-// ---- upload-driven mapping job ----
-const jobId_upload_active = () => false;
-let jobId = null, jobTimer = null, jobEnded = false, jobTimedOut = false;
-const jobMsg = t => { document.getElementById("job-msg").textContent = t; };
-function jobRobotsUI() {
-  const n = +document.getElementById("job-n").value, box = document.getElementById("job-robots");
-  if (box.dataset.n === String(n)) return;
-  box.dataset.n = n;
-  const slot = (r, k, label, opt) => `<label>${label}${opt ? " (optional)" : ""} <input type="file" id="job-r${r}-${k}"></label>`;
-  box.innerHTML = Array.from({length: n}, (_, r) => `<div class="slots" style="grid-template-columns:6.5em repeat(5,minmax(0,1fr))"><b>Camera ${r}</b>` +
-    slot(r, "left", "left video") + slot(r, "right", "right video") + slot(r, "calib", "calibration") +
-    slot(r, "left_stamps", "left timestamps", 1) + slot(r, "right_stamps", "right timestamps", 1) + "</div>").join("");
-}
-async function jobApi(path, opts = {}, retry = true) {
-  const r = await fetch(path, {...opts, headers: {"X-Approval-Token": token(false), ...(opts.headers || {})}});
-  if (r.status === 403 && retry) { token(true); return jobApi(path, opts, false); }
-  if (!r.ok) { let d = ""; try { d = (await r.json()).detail; } catch (e) {} throw new Error(d || `error ${r.status}`); }
-  return r.json();
-}
-async function jobSend(file, slot) {
-  const CH = 64 * 1024 * 1024, bar = document.getElementById("job-fill");
-  let off = 0;
-  while (off < file.size || (file.size === 0 && off === 0)) {
-    const end = Math.min(off + CH, file.size);
-    const r = await jobApi(`/api/jobs/${jobId}/files/${slot}?offset=${off}&total=${file.size}`, {method: "POST", body: file.slice(off, end)});
-    off = r.stored;
-    bar.style.width = `${Math.round(100 * off / Math.max(file.size, 1))}%`;
-    if (file.size === 0) break;
-  }
-}
-async function jobPrepare() {
-  const n = +document.getElementById("job-n").value, bar = document.getElementById("job-bar");
-  const need = ["left", "right", "calib"], opt = ["left_stamps", "right_stamps"];
-  for (let r = 0; r < n; r++) for (const k of need) if (!document.getElementById(`job-r${r}-${k}`).files[0]) return jobMsg(`Camera ${r}: choose the ${k} file.`);
-  document.getElementById("job-prepare").disabled = true; bar.hidden = false;
-  try {
-    jobId = (await jobApi(`/api/jobs?n_robots=${n}`, {method: "POST"})).id;
-    for (let r = 0; r < n; r++) for (const k of need.concat(opt)) {
-      const f = document.getElementById(`job-r${r}-${k}`).files[0];
-      if (!f) continue;
-      jobMsg(`Uploading camera ${r} ${k} (${(f.size / 1048576).toFixed(0)} MB)…`);
-      await jobSend(f, `r${r}_${k}`);
-    }
-    for (let r = 0; r < n; r++) await jobApi(`/api/jobs/${jobId}/ingest/${r}`, {method: "POST"});
-    jobMsg("Files uploaded. Decoding and checking synchronisation and left/right order…");
-    jobPoll();
-  } catch (e) { jobMsg("Upload failed: " + e.message); }
-  document.getElementById("job-prepare").disabled = false; bar.hidden = true;
-}
-function jobPoll() {
-  clearInterval(jobTimer);
-  const tick = async () => {
-    if (!jobId) return;
-    if (window.curLive === false && !jobId_upload_active()) { jobMsg("Showing a saved run (recorded earlier, replayed from saved output). No computation is running."); return; }
-    if (window.curRunState) {   // run started by script: its own lifecycle, not the last upload job's meta
-      const was = jobEnded; jobEnded = curRunState !== "computing"; jobTimedOut = curRunState === "timed_out";
-      if (jobEnded !== was && typeof drawPointCloud === "function") drawPointCloud();
-      jobMsg(curRunState === "computing" ? "Test run in progress (started by script, not the upload button). Watch the 3D 'updated' time and the point count; the cloud builder lags the live feed."
-        : curRunState === "timed_out" ? "Test run stopped at its wall-clock cap (started by script). Results are what had been computed by then; the cloud builder may have lagged the feed."
-        : "Test run ended (started by script).");
-      return;
-    }
-    let j; try { j = await (await fetch(`/api/jobs/${jobId}`)).json(); } catch (e) { return; }
-    const rs = Object.entries(j.robots || {}), startBtn = document.getElementById("job-start"), stopBtn = document.getElementById("job-stop");
-    const allReady = rs.length === j.n_robots && rs.every(([, v]) => v.state === "ready");
-    startBtn.disabled = !allReady || j.status === "running";
-    stopBtn.disabled = j.status !== "running";
-    const wasEnded = jobEnded; jobEnded = ["finished", "stopped", "failed", "timed_out"].includes(j.status);
-    jobTimedOut = j.status === "timed_out" || (j.status === "finished" && !!j.ended && !!j.started && !!j.max_wall_s && (j.ended - j.started) >= j.max_wall_s - 2);
-    if (jobEnded !== wasEnded && typeof drawPointCloud === "function") drawPointCloud();
-    let t;
-    if (j.status === "running") {
-      const done = Math.min(...j.frames_published), tot = j.total_pairs || 1;
-      t = `Mapping running · frames fed ${j.frames_published.join(" / ")} of ${j.total_pairs} · ${j.points ?? 0} points so far · elapsed ${Math.round(j.elapsed_s || 0)} s (speed setting ${j.rate}, wall-clock cap ${Math.round(j.max_wall_s / 60)} min)`;
-    } else if (["finished", "stopped", "failed", "timed_out"].includes(j.status)) {
-      t = (jobTimedOut ? `Job TIMED OUT at the ${Math.round(j.max_wall_s / 60)}-minute wall-clock cap: stopped by the cap, not completed. The cloud shown is the last build that finished (${j.points ?? 0} points) and is incomplete; the SLAM had produced more keyframes than the cloud builder had processed.` : `Job ${j.status}. ${j.points ?? 0} points computed.`) + (j.log_tail ? " Log tail: " + j.log_tail.slice(-300) : "");
-    } else {
-      t = rs.map(([i, v]) => `Camera ${i}: ` + (v.state === "ready" ? `ready (${v.report.pairs_written} pairs, ${v.report.duration_s}s, sync: ${v.report.sync.status}, stereo check ${v.report.stereo_inlier_ratio.as_given})`
-        : v.state === "error" ? "REJECTED - " + v.error : v.state)).join(" · ");
-    }
-    jobMsg(t);
-    if (!["running"].includes(j.status) && (allReady || rs.some(([, v]) => v.state === "error")) && j.status !== "created") { if (j.status !== "running") clearInterval(jobTimer); }
-  };
-  jobTimer = setInterval(tick, 2000); tick();
-}
-async function jobStart() {
-  try { await jobApi(`/api/jobs/${jobId}/start?rate=${document.getElementById("job-rate").value}&max_wall_s=${Math.round(60 * document.getElementById("job-cap").value)}`, {method: "POST"}); jobPoll(); refresh(); }
-  catch (e) { jobMsg("Cannot start: " + e.message); }
-}
-async function jobStop() { try { await jobApi(`/api/jobs/${jobId}/stop`, {method: "POST"}); jobPoll(); } catch (e) { jobMsg(e.message); } }
-async function jobDemo() { try { await jobApi("/api/runs/default", {method: "POST"}); jobMsg("Showing the saved demo run."); pc = null; refresh(); } catch (e) { jobMsg(e.message); } }
-document.getElementById("job-n").addEventListener("change", jobRobotsUI);
-jobRobotsUI();
-// Re-attach after a reload: follow the running job, or else the most recent one.
-fetch("/api/jobs").then(r => r.json()).then(js => { const j = js.find(x => x.status === "running") || js[0]; if (j && !jobId) { jobId = j.id; jobPoll(); } }).catch(() => {});
-setInterval(refreshUploads, 2000);
+let jobEnded = false, jobTimedOut = false;
 refresh();
 setInterval(refresh, 1000);
 refreshFrames();

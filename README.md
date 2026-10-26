@@ -8,6 +8,8 @@ Built for the OpenCV 5 hackathon, Agentic Vision track.
 
 ![Architecture](docs/figures/architecture_v3.png)
 
+> **Status.** Every result below comes from recorded footage processed on one EC2 server. Live camera streaming is not built. Near-real-time mapping is a goal and is not demonstrated: on this 2-vCPU server the stored map trailed a 1x feed by about a minute. Results from our own on-site recordings are not in yet; the capture hardware is described at the end.
+
 ## Features
 
 - **OpenCV 5 front end per camera.** Stereo rectification (`stereoRectify`, `remap`), blur, ORB features, a same-row stereo check and tracking inliers (RANSAC fundamental matrix). No `cv_bridge`; images are converted directly.
@@ -27,7 +29,7 @@ We tested on recorded footage, with ground truth where it exists.
 | Footage | What it tested | Ground truth |
 |---|---|---|
 | **EuRoC MAV**, Vicon Room 1 and Machine Hall, 3 flights each, 0.25x feed | merging, coverage claims, failure injection, thresholds | yes |
-| **AirMuseum** scenario 3, a hangar with zones, 3 robots at 10 Hz | upload jobs, cloud building, throughput on the Free-plan server | reference trajectory not verified (no error figure reported) |
+| **AirMuseum** scenario 3, a hangar with zones, 3 robots at 10 Hz | upload jobs, cloud building, throughput on the Free-plan server | conversion not verified |
 
 ### EuRoC results (measured against ground truth)
 
@@ -44,10 +46,6 @@ We tested on recorded footage, with ground truth where it exists.
 These numbers are from the earlier phase, which used the Nova coordinator. Details and the failures we hit and fixed are in [`docs/REPORT.md`](docs/REPORT.md) and [`docs/FINDINGS.md`](docs/FINDINGS.md).
 
 ![Merged map, Vicon Room 1](docs/figures/merge_vicon_room1.png)
-The map building up while three recorded EuRoC Vicon Room 1 flights are replayed in fast-forward (the earlier Nova-phase run; recorded footage, not live capture):
-
-![3D point cloud building up during the replay](docs/figures/pointcloud_building.gif)
-
 ![3D point cloud, Vicon Room 1](docs/figures/pointcloud_vicon_room1.png)
 
 ### AirMuseum results (no accuracy claim)
@@ -72,7 +70,7 @@ The dashboard can show a saved run. A *replay* re-runs the coordinator over reco
 | `eval/` | trajectory error, coverage precision and recall, latency, failure timeline |
 | `scripts/` | EC2 setup, OpenCV 5 environment, footage download, run scripts, demo server |
 | `tests/` | 48 tests |
-| `docs/` | report, findings, deployment guide, figures |
+| `docs/` | report, findings, deployment runbook, video script, figures |
 | `swarm.repos` | Swarm-SLAM packages pinned to tested commits |
 
 ## Build and run

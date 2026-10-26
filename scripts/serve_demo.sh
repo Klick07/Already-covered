@@ -24,11 +24,14 @@ elif pgrep -f "cloudflared tunnel" > /dev/null; then
   exit 1
 fi
 rm -f "$RUN/coverage.db" "$RUN/coverage.db-wal" "$RUN/coverage.db-shm"
+# Default: no paid Bedrock calls. Set ALLOW_BEDROCK=1 explicitly to enable the Nova demo.
+EXTRA_ARGS="--rules-only"
+if [ "${ALLOW_BEDROCK:-0}" = "1" ]; then EXTRA_ARGS=""; fi
 
 # Low priority so a live SLAM run on the same 2 vCPUs always wins.
 RUN_DIR=$RUN APPROVAL_TOKEN=$(cat "$LOGS/approval_token") nohup nice -n 10 \
   ~/cv5env/bin/uvicorn dashboard.app:app --host 127.0.0.1 --port 8000 > "$LOGS/dashboard.log" 2>&1 &
-nohup nice -n 10 ~/cv5env/bin/python -m coordinator.main "$RUN" --speed "$SPEED" --wait-approvals \
+nohup nice -n 10 ~/cv5env/bin/python -m coordinator.main "$RUN" --speed "$SPEED" --wait-approvals $EXTRA_ARGS \
   > "$LOGS/coordinator.log" 2>&1 &
 if [ $RESTART = 1 ]; then
   echo "restarted dashboard + coordinator; tunnel unchanged"; exit 0

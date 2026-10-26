@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add videos · Swarm Coverage</title>
+<style>
+:root {
+  --surface-0: #f4f3f0; --surface-1: #fcfcfb; --border: #e3e1dc; --grid: #ecebe7;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7b7a75;
+  --robot-0: #2a78d6; --robot-1: #eb6834; --robot-2: #1baf7a;
+  --covered: #cfcdc6; --seen: transparent; --seen-line: #c3c1ba;
+  --action: #0b0b0b; --action-ink: #fcfcfb; --warn-bg: #fff4dc;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c; --grid: #252523;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8e8d86;
+  --robot-0: #3987e5; --robot-1: #d95926; --robot-2: #199e70;
+  --covered: #3a3936; --seen-line: #4a4946; --action: #f0efec; --action-ink: #1a1a19; --warn-bg: #3a2f14;
+}}
+:root[data-theme="dark"] {
+  --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c; --grid: #252523;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8e8d86;
+  --robot-0: #3987e5; --robot-1: #d95926; --robot-2: #199e70;
+  --covered: #3a3936; --seen-line: #4a4946; --action: #f0efec; --action-ink: #1a1a19; --warn-bg: #3a2f14;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 16px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; }
+h1 { font-size: 18px; margin: 0; }
+.sub { color: var(--text-secondary); }
+main { display: grid; gap: 16px; padding: 0 16px 24px; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+@media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+section { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 14px; min-width: 0; }
+h2 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+.stats { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 10px; }
+.stat b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--text-secondary); font-size: 12px; }
+svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+.sw { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.box { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
+ul { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
+li { padding: 6px 0; border-bottom: 1px solid var(--grid); display: flex; gap: 8px; align-items: baseline; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; transform: translateY(-1px); }
+.t { color: var(--text-muted); font-variant-numeric: tabular-nums; font-size: 12px; flex: none; }
+.card { border: 1px solid var(--border); background: var(--warn-bg); border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+.card p { margin: 0 0 8px; }
+button { font: inherit; border-radius: 6px; padding: 6px 14px; cursor: pointer; border: 1px solid var(--action); }
+.approve { background: var(--action); color: var(--action-ink); }
+.reject { background: transparent; color: var(--text-primary); margin-left: 6px; }
+.empty { color: var(--text-muted); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th, td { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; }
+td.num { font-variant-numeric: tabular-nums; }
+.wide { grid-column: 1 / -1; }
+.cams { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 860px) { .cams { grid-template-columns: minmax(0, 1fr); } }
+.cam { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface-0); }
+.cam.weak { border-color: var(--status-warning); box-shadow: 0 0 0 1px var(--status-warning); }
+.cam-img { position: relative; aspect-ratio: 752 / 480; background: #000; }
+.cam-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cam-img .none { position: absolute; inset: 0; display: grid; place-items: center; color: #8e8d86; font-size: 12px; }
+.cam-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px 0; }
+.cam-head b { font-size: 14px; }
+.cam-head .seq { color: var(--text-muted); font-size: 12px; }
+.chip { margin-left: auto; font-size: 12px; border-radius: 10px; padding: 1px 8px; border: 1px solid var(--border); white-space: nowrap; }
+.chip.ok::before { content: "✓ "; color: var(--status-good); font-weight: 700; }
+.chip.weak { background: var(--warn-bg); }
+.chip.weak::before { content: "▲ "; color: var(--status-warning); }
+.cam-vals { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 10px; font-size: 12px; color: var(--text-secondary); }
+.cam-vals b { color: var(--text-primary); font-variant-numeric: tabular-nums; font-weight: 600; }
+.cam-msg { padding: 0 10px 10px; font-size: 12px; color: var(--text-primary); min-height: 2.9em; }
+.cam-msg .t { margin-right: 6px; }
+:root { --status-good: #0ca30c; --status-warning: #fab219; }
+:root { --crossed-line: #8e8d86; }
+.pc-section { margin-top: 16px; }
+.pc-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 12px; }
+.box.hatch { border: 1px dashed var(--crossed-line);
+  background: repeating-linear-gradient(45deg, var(--crossed-line) 0 1.5px, transparent 1.5px 4px); }
+.alert { display: none; position: sticky; top: 0; z-index: 5; margin: 0 16px 12px; padding: 10px 14px;
+  border-radius: 6px; background: var(--warn-bg); border: 1px solid var(--status-warning);
+  align-items: center; gap: 12px; flex-wrap: wrap; }
+.alert.on { display: flex; }
+.alert b::before { content: "▲ "; color: var(--status-warning); }
+.alert button { padding: 4px 12px; }
+.note { margin: 0 0 10px; font-size: 12px; }
+.slots { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: end; margin-bottom: 8px; }
+@media (max-width: 860px) { .slots { grid-template-columns: minmax(0, 1fr); } }
+.slot { display: grid; gap: 6px; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+.slot input[type=file] { font: inherit; font-size: 12px; color: var(--text-secondary); max-width: 100%; }
+.slot .dot { display: inline-block; margin-right: 6px; }
+.session { border-top: 1px solid var(--border); margin-top: 6px; }
+.session-head { font-size: 12px; color: var(--text-muted); padding: 8px 0 0; }
+.bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; margin: 4px 0 6px; }
+.bar > div { height: 100%; width: 0; background: var(--robot-0); transition: width .2s; }
+.vid { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--grid); }
+.vid img { width: 120px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: #000; }
+.vid .thumb-none { width: 120px; aspect-ratio: 4 / 3; border-radius: 4px; background: var(--grid); }
+.vid b { word-break: break-all; }
+.vid .meta { font-size: 12px; color: var(--text-secondary); }
+.vid .meta span { margin-right: 10px; white-space: nowrap; }
+.timeline { position: relative; height: 10px; border-radius: 3px; background: var(--grid); margin: 6px 0 2px; }
+.timeline i { position: absolute; top: 0; bottom: 0; background: var(--status-warning); border-radius: 2px; }
+.vid .del { padding: 2px 10px; font-size: 12px; margin-top: 4px; }
+.chip.planned { margin-left: 8px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-secondary); }
+.devices { display: grid; gap: 8px; }
+.dev { border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; display: grid;
+  grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; }
+.dev .meta { font-size: 12px; color: var(--text-secondary); word-break: break-all; }
+.dev button { grid-row: 1 / span 3; grid-column: 2; padding: 4px 12px; opacity: .5; cursor: not-allowed; }
+.pair { margin: 0 0 10px; }
+.pair img { width: 100%; display: block; border-radius: 4px; background: #000; }
+.pair figcaption { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* ---- neo-glass redesign (reference: warm cream/peach frosted-glass pin) ---- */
+:root {
+  --surface-0: #f5ede2;
+  --glass-bg: rgba(255,252,247,.42); --glass-border: rgba(255,255,255,.85);
+  --glass-hi: rgba(255,255,255,.75); --glass-soft: rgba(255,255,255,.32);
+  --blob1: rgba(255,178,120,.34); --blob2: rgba(255,214,178,.42);
+  --blob3: rgba(248,190,140,.30); --blob4: rgba(255,236,214,.50);
+  --accent: #ef7d2b; --accent-soft: rgba(239,125,43,.45); --reject-ink: #c05f16;
+  --warm-shadow: 0 18px 50px rgba(197,130,62,.16), 0 3px 10px rgba(197,130,62,.08);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --glass-bg: rgba(30,26,22,.52); --glass-border: rgba(255,235,214,.14);
+  --glass-hi: rgba(255,235,214,.10); --glass-soft: rgba(255,255,255,.05);
+  --blob1: rgba(255,160,90,.13); --blob2: rgba(255,190,140,.09);
+  --blob3: rgba(255,150,80,.11); --blob4: rgba(255,210,170,.07);
+  --reject-ink: #f3bd8d;
+  --warm-shadow: 0 18px 50px rgba(0,0,0,.45); } }
+:root[data-theme="dark"] {
+  --glass-bg: rgba(30,26,22,.52); --glass-border: rgba(255,235,214,.14);
+  --glass-hi: rgba(255,235,214,.10); --glass-soft: rgba(255,255,255,.05);
+  --blob1: rgba(255,160,90,.13); --blob2: rgba(255,190,140,.09);
+  --blob3: rgba(255,150,80,.11); --blob4: rgba(255,210,170,.07);
+  --reject-ink: #f3bd8d;
+  --warm-shadow: 0 18px 50px rgba(0,0,0,.45); }
+body {
+  background:
+    radial-gradient(1000px 620px at 88% -14%, var(--blob1), transparent 60%),
+    radial-gradient(880px 580px at -14% 22%, var(--blob2), transparent 62%),
+    radial-gradient(840px 680px at 58% 118%, var(--blob3), transparent 60%),
+    radial-gradient(760px 520px at 34% 48%, var(--blob4), transparent 66%),
+    var(--surface-0);
+  background-attachment: fixed;
+}
+section, .alert, .modal-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--warm-shadow), inset 0 1px 0 var(--glass-hi);
+}
+button { border-radius: 999px; border: 1px solid var(--glass-border);
+  background: var(--glass-bg); color: var(--text-primary);
+  transition: transform .12s ease, box-shadow .12s ease; }
+button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(197,130,62,.20); }
+button:disabled { opacity: .55; }
+.approve { background: linear-gradient(135deg, #ffb37a, var(--accent)); border: none; color: #fff;
+  box-shadow: 0 8px 22px rgba(239,125,43,.38), inset 0 1px 0 rgba(255,255,255,.5); }
+.reject { background: var(--glass-bg); border: 1px solid var(--accent-soft); color: var(--reject-ink); }
+#add-videos { margin-left: auto; align-self: center; font-weight: 600; }
+.cam { border-radius: 16px; background: var(--glass-soft); border-color: var(--glass-border); }
+.card { border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--glass-border); }
+.chip { background: var(--glass-soft); border-color: var(--glass-border); }
+input, select { background: var(--glass-soft); border: 1px solid var(--glass-border); border-radius: 8px; padding: 3px 7px; }
+#pc-viewer { border-radius: 16px !important; }
+#side-feed { grid-row: span 2; display: flex; flex-direction: column; }
+#side-feed ul { flex: 1; max-height: none; }
+@media (max-width: 860px) { #side-feed { grid-row: auto; } }
+/* approval modal: 80% of the screen */
+.modal { position: fixed; inset: 0; z-index: 50; }
+.modal[hidden] { display: none; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(15,15,18,.38);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.modal-card { position: absolute; inset: 0; margin: auto; width: 80vw; height: 80vh;
+  border-radius: 24px; padding: 18px 22px; overflow: auto; }
+.modal-head { display: flex; align-items: center; gap: 12px; position: sticky; top: 0;
+  background: inherit; padding-bottom: 8px; }
+.modal-head h2 { margin: 0; }
+.modal-x { margin-left: auto; border: none; background: transparent; font-size: 18px;
+  color: var(--text-secondary); padding: 4px 10px; }
+@media (max-width: 860px) { .modal-card { width: 94vw; height: 86vh; } }
+
+#job-robots .slots label { display: grid; gap: 4px; font-size: 12px; color: var(--text-secondary); min-width: 0; }
+#job-robots .slots input[type=file] { width: 100%; max-width: 100%; font-size: 11px; }
+#job-robots .slots b { align-self: end; }
+@media (max-width: 1100px) { #job-robots .slots { grid-template-columns: repeat(3, minmax(0,1fr)) !important; } #job-robots .slots b { grid-column: 1 / -1; } }
+@media (max-width: 560px) { #job-robots .slots { grid-template-columns: minmax(0,1fr) !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Swarm coverage</h1>
+  <span class="sub">upload stereo footage, then Start</span>
+  <button class="approve" id="add-videos" onclick="location.href='/'">← Dashboard</button>
+</header>
+<div class="alert" id="alert" role="alert">
+  <b id="alert-text">Approval needed</b>
+  <span class="sub">Coverage is on hold until you answer.</span>
+  <button class="approve" onclick="document.getElementById('pending').scrollIntoView({behavior: 'smooth'})">Review now</button>
+  <button class="reject" id="alerts-btn" onclick="enableAlerts()">Enable desktop alerts + sound</button>
+</div>
+<main>
+  <section class="wide" id="job-panel" style="grid-column:1/-1">
+    <h2>Mapping job · upload stereo footage, then Start</h2>
+    <p class="sub note">Per camera: a left video, a right video and a stereo calibration file (our calib yaml or a Kalibr
+      camchain). Timestamp files for both videos are optional but are the only way to <em>prove</em> the pair is
+      synchronised; without them the server only runs a motion check and says so. Files are sent in 64 MB pieces.
+      Start runs the actual mapping on this server and the 3D view below grows as points are computed; it is not a
+      stored replay. Replay speed 1 means footage speed; this server has only been timed at 0.25 so far. Alerts and decisions in a job are plain rules (no Nova/Bedrock calls).
+      Uploading and Start need the operator token.</p>
+    <div id="job-robots"></div>
+    <p>
+      <label>Cameras <select id="job-n"><option>1</option><option>2</option><option selected>3</option></select></label>
+      <label>Replay speed <input id="job-rate" type="number" min="0.05" max="2" step="0.05" value="0.25" style="width:5em"></label>
+      <label>Wall-clock cap (min) <input id="job-cap" type="number" min="1" max="60" step="1" value="20" style="width:4.5em"></label>
+      <label>Operator token <input id="op-token" type="password" autocomplete="off" placeholder="needed to upload / start" style="width:11em"></label>
+      <button class="approve" id="job-prepare" onclick="jobPrepare()">1 · Upload + check files</button>
+      <button class="approve" id="job-start" onclick="jobStart()" disabled>2 · Start mapping</button>
+      <button class="reject" id="job-stop" onclick="jobStop()" disabled>Stop</button>
+      <button id="job-demo" onclick="jobDemo()">Show saved demo</button>
+    </p>
+    <div class="bar" id="job-bar" hidden><div id="job-fill"></div></div>
+    <p class="sub" id="job-msg" role="status"></p>
+  </section>
+</main>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+function token(reset) {
+  const box = document.getElementById("op-token");
+  if (box && box.value) { try { localStorage.setItem("approvalToken", box.value); } catch (e) {} return box.value; }
+  let t = null;
+  try { t = reset ? null : localStorage.getItem("approvalToken"); } catch (e) {}
+  if (!t) {
+    t = prompt("Approval token (viewing is public; answering needs the operator's token):") || "";
+    try { localStorage.setItem("approvalToken", t); } catch (e) {}
+  }
+  return t;
+}
+function refresh() {}
+// ---- upload-driven mapping job ----
+const jobId_upload_active = () => false;
+let jobId = null, jobTimer = null, jobEnded = false, jobTimedOut = false;
+const jobMsg = t => { document.getElementById("job-msg").textContent = t; };
+function jobRobotsUI() {
+  const n = +document.getElementById("job-n").value, box = document.getElementById("job-robots");
+  if (box.dataset.n === String(n)) return;
+  box.dataset.n = n;
+  const slot = (r, k, label, opt) => `<label>${label}${opt ? " (optional)" : ""} <input type="file" id="job-r${r}-${k}"></label>`;
+  box.innerHTML = Array.from({length: n}, (_, r) => `<div class="slots" style="grid-template-columns:minmax(4em,6.5em) repeat(5,minmax(0,1fr))"><b>Camera ${r}</b>` +
+    slot(r, "left", "left video") + slot(r, "right", "right video") + slot(r, "calib", "calibration") +
+    slot(r, "left_stamps", "left timestamps", 1) + slot(r, "right_stamps", "right timestamps", 1) + "</div>").join("");
+}
+async function jobApi(path, opts = {}, retry = true) {
+  const r = await fetch(path, {...opts, headers: {"X-Approval-Token": token(false), ...(opts.headers || {})}});
+  if (r.status === 403 && retry) { token(true); return jobApi(path, opts, false); }
+  if (!r.ok) { let d = ""; try { d = (await r.json()).detail; } catch (e) {} throw new Error(d || `error ${r.status}`); }
+  return r.json();
+}
+async function jobSend(file, slot) {
+  const CH = 64 * 1024 * 1024, bar = document.getElementById("job-fill");
+  let off = 0;
+  while (off < file.size || (file.size === 0 && off === 0)) {
+    const end = Math.min(off + CH, file.size);
+    const r = await jobApi(`/api/jobs/${jobId}/files/${slot}?offset=${off}&total=${file.size}`, {method: "POST", body: file.slice(off, end)});
+    off = r.stored;
+    bar.style.width = `${Math.round(100 * off / Math.max(file.size, 1))}%`;
+    if (file.size === 0) break;
+  }
+}
+async function jobPrepare() {
+  const n = +document.getElementById("job-n").value, bar = document.getElementById("job-bar");
+  const need = ["left", "right", "calib"], opt = ["left_stamps", "right_stamps"];
+  for (let r = 0; r < n; r++) for (const k of need) if (!document.getElementById(`job-r${r}-${k}`).files[0]) return jobMsg(`Camera ${r}: choose the ${k} file.`);
+  document.getElementById("job-prepare").disabled = true; bar.hidden = false;
+  try {
+    jobId = (await jobApi(`/api/jobs?n_robots=${n}`, {method: "POST"})).id;
+    for (let r = 0; r < n; r++) for (const k of need.concat(opt)) {
+      const f = document.getElementById(`job-r${r}-${k}`).files[0];
+      if (!f) continue;
+      jobMsg(`Uploading camera ${r} ${k} (${(f.size / 1048576).toFixed(0)} MB)…`);
+      await jobSend(f, `r${r}_${k}`);
+    }
+    for (let r = 0; r < n; r++) await jobApi(`/api/jobs/${jobId}/ingest/${r}`, {method: "POST"});
+    jobMsg("Files uploaded. Decoding and checking synchronisation and left/right order…");
+    jobPoll();
+  } catch (e) { jobMsg("Upload failed: " + e.message); }
+  document.getElementById("job-prepare").disabled = false; bar.hidden = true;
+}
+function jobPoll() {
+  clearInterval(jobTimer);
+  const tick = async () => {
+    if (!jobId) return;
+    if (window.curLive === false && !jobId_upload_active()) { jobMsg("Showing a saved run (recorded earlier, replayed from saved output). No computation is running."); return; }
+    if (window.curRunState) {   // run started by script: its own lifecycle, not the last upload job's meta
+      const was = jobEnded; jobEnded = curRunState !== "computing"; jobTimedOut = curRunState === "timed_out";
+      if (jobEnded !== was && typeof drawPointCloud === "function") drawPointCloud();
+      jobMsg(curRunState === "computing" ? "Test run in progress (started by script, not the upload button). Watch the 3D 'updated' time and the point count; the cloud builder lags the live feed."
+        : curRunState === "timed_out" ? "Test run stopped at its wall-clock cap (started by script). Results are what had been computed by then; the cloud builder may have lagged the feed."
+        : "Test run ended (started by script).");
+      return;
+    }
+    let j; try { j = await (await fetch(`/api/jobs/${jobId}`)).json(); } catch (e) { return; }
+    const rs = Object.entries(j.robots || {}), startBtn = document.getElementById("job-start"), stopBtn = document.getElementById("job-stop");
+    const allReady = rs.length === j.n_robots && rs.every(([, v]) => v.state === "ready");
+    startBtn.disabled = !allReady || j.status === "running";
+    stopBtn.disabled = j.status !== "running";
+    const wasEnded = jobEnded; jobEnded = ["finished", "stopped", "failed", "timed_out"].includes(j.status);
+    jobTimedOut = j.status === "timed_out" || (j.status === "finished" && !!j.ended && !!j.started && !!j.max_wall_s && (j.ended - j.started) >= j.max_wall_s - 2);
+    if (jobEnded !== wasEnded && typeof drawPointCloud === "function") drawPointCloud();
+    let t;
+    if (j.status === "running") {
+      const done = Math.min(...j.frames_published), tot = j.total_pairs || 1;
+      t = `Mapping running · frames fed ${j.frames_published.join(" / ")} of ${j.total_pairs} · ${j.points ?? 0} points so far · elapsed ${Math.round(j.elapsed_s || 0)} s (speed setting ${j.rate}, wall-clock cap ${Math.round(j.max_wall_s / 60)} min)`;
+    } else if (["finished", "stopped", "failed", "timed_out"].includes(j.status)) {
+      t = (jobTimedOut ? `Job TIMED OUT at the ${Math.round(j.max_wall_s / 60)}-minute wall-clock cap: stopped by the cap, not completed. The cloud shown is the last build that finished (${j.points ?? 0} points) and is incomplete; the SLAM had produced more keyframes than the cloud builder had processed.` : `Job ${j.status}. ${j.points ?? 0} points computed.`) + (j.log_tail ? " Log tail: " + j.log_tail.slice(-300) : "");
+    } else {
+      t = rs.map(([i, v]) => `Camera ${i}: ` + (v.state === "ready" ? `ready (${v.report.pairs_written} pairs, ${v.report.duration_s}s, sync: ${v.report.sync.status}, stereo check ${v.report.stereo_inlier_ratio.as_given})`
+        : v.state === "error" ? "REJECTED - " + v.error : v.state)).join(" · ");
+    }
+    jobMsg(t);
+    if (!["running"].includes(j.status) && (allReady || rs.some(([, v]) => v.state === "error")) && j.status !== "created") { if (j.status !== "running") clearInterval(jobTimer); }
+  };
+  jobTimer = setInterval(tick, 2000); tick();
+}
+async function jobStart() {
+  try { await jobApi(`/api/jobs/${jobId}/start?rate=${document.getElementById("job-rate").value}&max_wall_s=${Math.round(60 * document.getElementById("job-cap").value)}`, {method: "POST"}); jobPoll(); refresh(); }
+  catch (e) { jobMsg("Cannot start: " + e.message); }
+}
+async function jobStop() { try { await jobApi(`/api/jobs/${jobId}/stop`, {method: "POST"}); jobPoll(); } catch (e) { jobMsg(e.message); } }
+async function jobDemo() { try { await jobApi("/api/runs/default", {method: "POST"}); jobMsg("Showing the saved demo run. Open the dashboard to view it."); } catch (e) { jobMsg(e.message); } }
+document.getElementById("job-n").addEventListener("change", jobRobotsUI);
+jobRobotsUI();
+// Re-attach after a reload: follow the running job, or else the most recent one.
+fetch("/api/jobs").then(r => r.json()).then(js => { const j = js.find(x => x.status === "running") || js[0]; if (j && !jobId) { jobId = j.id; jobPoll(); } }).catch(() => {});
+</script>
+</body>
+</html>

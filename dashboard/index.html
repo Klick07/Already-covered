@@ -170,10 +170,10 @@ td.num { font-variant-numeric: tabular-nums; }
     <h2>3D Point Cloud</h2>
     <p class="sub note">Stereo depth of every Swarm-SLAM keyframe, placed at its merged-map pose and re-placed after each optimization. Grows with the replay: each camera's points appear once it has reached them, with its path and current position (diamond). Colored by camera; floor at z = 0.</p>
     <div class="pc-section">
-      <button class="pc-btn" id="pc-btn" onclick="loadPointCloud()">📥 Download Point Cloud</button>
+      <button class="pc-btn" id="pc-btn" onclick="loadPointCloud()">📥 Download Point Cloud (.glb)</button>
       <button class="pc-btn" id="pc-refresh" onclick="refreshPointCloud()">🔄 Refresh View</button>
       <label class="sub" style="display:inline-flex;gap:6px;align-items:center;margin-left:8px"><input type="checkbox" id="pc-paths" onchange="pcPathsUser = this.checked; pcDrawn = ''; drawPointCloud();" checked> Show camera paths</label>
-      <span id="pc-status" class="sub"></span>
+      <span id="pc-status" class="sub"></span> <a class="sub" href="/api/pointcloud" download="pointcloud.pcd" style="margin-left:8px">original .pcd</a>
     </div>
     <div id="pc-viewer" style="width: 100%; height: 500px; margin-top: 12px; border-radius: 6px; overflow: hidden;">
       <div style="display: grid; place-items: center; height: 100%; color: var(--text-muted); font-size: 12px;">Loading 3D viewer...</div>
@@ -234,7 +234,7 @@ function loadPointCloud() {
   btn.disabled = true;
   status.textContent = "Loading...";
   
-  fetch("/api/pointcloud")
+  fetch("/api/pointcloud.glb")
     .then(resp => {
       if (!resp.ok) throw new Error("Point cloud not available");
       return resp.blob();
@@ -243,7 +243,7 @@ function loadPointCloud() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "pointcloud.pcd";
+      a.download = "pointcloud.glb";
       a.click();
       URL.revokeObjectURL(url);
       status.textContent = "Downloaded!";

@@ -9,7 +9,7 @@ with a **check**. Don't continue until the check passes.
 console clicks, making things public). Confirm each one before continuing.
 
 Time: about 1.5 h, mostly unattended (builds, download, a 15 min run). Cost: about $0.12/h for
-EC2 plus cents for Bedrock. Repository: https://github.com/Klick07/Already-covered
+EC2 plus cents for Bedrock. Repository: https://github.com/Klick07/Swarm-coverage
 
 ---
 
@@ -116,7 +116,7 @@ All commands from the laptop; `$EC2` as above. Run long steps detached so a drop
 can't kill them, and **always pass `< /dev/null`** so the local shell returns.
 
 ```bash
-ssh -i ~/.ssh/swarm-slam.pem ubuntu@$EC2 'git clone https://github.com/Klick07/Already-covered.git ~/OpenCVH' < /dev/null
+ssh -i ~/.ssh/swarm-slam.pem ubuntu@$EC2 'git clone https://github.com/Klick07/Swarm-coverage.git ~/OpenCVH' < /dev/null
 ssh -i ~/.ssh/swarm-slam.pem ubuntu@$EC2 'setsid nohup bash -c "bash ~/OpenCVH/scripts/ec2_setup.sh ~/OpenCVH/swarm.repos || echo SETUP_FAILED" < /dev/null > ~/setup.log 2>&1 &' < /dev/null
 # poll every ~60 s until the last line is SETUP_DONE or SETUP_FAILED:
 ssh -i ~/.ssh/swarm-slam.pem ubuntu@$EC2 'tail -1 ~/setup.log' < /dev/null
@@ -214,7 +214,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST -F "file=@/dev/null;filename=x.
 ## 7. Evaluate (laptop)
 
 ```bash
-git clone https://github.com/Klick07/Already-covered.git && cd Already-covered
+git clone https://github.com/Klick07/Swarm-coverage.git && cd Swarm-coverage
 python3 -m venv .venv && .venv/bin/pip install opencv-contrib-python==5.0.0.93 numpy scipy matplotlib pyyaml pytest \
   boto3 fastapi==0.121.1 uvicorn==0.38.0 python-multipart==0.0.20 httpx==0.28.1
 .venv/bin/python -m pytest -q tests                      # 26 passed

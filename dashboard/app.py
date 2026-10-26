@@ -72,6 +72,12 @@ def index():
     return FileResponse(Path(__file__).with_name(os.environ.get("DASHBOARD_PAGE", "index.html")), headers={"Cache-Control": "no-store"})
 
 
+@app.get("/upload")
+def upload_page():
+    # Upload/job console, moved off the main page (user request, 2026-10-26); same token rules via the API.
+    return FileResponse(Path(__file__).with_name("upload.html"), headers={"Cache-Control": "no-store"})
+
+
 def script_run_state(run_dir):
     """Lifecycle of a run that was started by script, not through the upload job API (its dir is not job_<id>).
     None for upload jobs (the page then uses the job's own meta). run.done is written when the launch stack exits;
@@ -268,6 +274,30 @@ def pointcloud():
         raise HTTPException(404, "point cloud not built yet")
     return FileResponse(path, media_type="application/octet-stream", filename="pointcloud.pcd",
                         headers={"Cache-Control": "no-store"})
+
+
+_glb_cache = {"key": None, "body": None}
+
+
+@app.get("/api/pointcloud.glb")
+def pointcloud_glb():
+    """The same cloud as /api/pointcloud, as a binary glTF (.glb) POINTS primitive: every point, same colours, no mesh.
+    Built on demand from the current run's pointcloud.pcd and cached until the file changes."""
+    from fastapi.responses import Response
+    from dashboard.glb_export import build_glb, read_pcd
+    path = Path(f"{RUN_DIR}/pointcloud.pcd")
+    if not path.exists():
+        raise HTTPException(404, "point cloud not built yet")
+    st = path.stat()
+    key = (str(path), st.st_mtime_ns, st.st_size)
+    if _glb_cache["key"] != key:
+        try:
+            body, _n, _dropped = build_glb(read_pcd(str(path)))
+        except ValueError:
+            raise HTTPException(404, "point cloud has no points yet")
+        _glb_cache.update(key=key, body=body)
+    return Response(_glb_cache["body"], media_type="model/gltf-binary",
+                    headers={"Cache-Control": "no-store", "Content-Disposition": 'attachment; filename="pointcloud.glb"'})
 
 
 @app.get("/api/pointcloud/json")
